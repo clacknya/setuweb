@@ -496,7 +496,7 @@ async def send_to_group(group_id: int, url: str, pid: str, p: str, title: str, a
         msg_result = await bot.send_group_forward_msg(group_id=group_id, messages=data)
     else:
         await bot.send_group_msg(group_id=group_id, message=msg)
-    downres = False
+    downres = True
     if not os.path.exists(R.img(f'setuweb/{filename}').path):
         downres = await down_img(url)
     if not downres:
@@ -505,8 +505,8 @@ async def send_to_group(group_id: int, url: str, pid: str, p: str, title: str, a
     if config['antishielding']:
         path = R.img(f'setuweb/{filename}').path
         await imgAntiShielding(path)
-        imgtype = path.split('.')[-1]
-        imgname = path.split('\\')[-1].split('.')[-2]
+        (imgname, imgtype) = os.path.splitext(os.path.basename(path))
+        imgtype = imgtype[1:]
         filename = f'{imgname}_anti.{imgtype}'
     img = R.img(f'setuweb/{filename}').cqcode
     if config['forward']:
@@ -559,7 +559,7 @@ async def send_list_to_group(*args):
     data = []
     for i in args:
         msg = ''
-        downres = False
+        downres = True
         filename = i['url'].split('/')[-1]
         url = i['url']
         if not os.path.exists(R.img(f'setuweb/{filename}').path):
@@ -572,22 +572,22 @@ async def send_list_to_group(*args):
             if config['antishielding']:
                 path = R.img(f'setuweb/{filename}').path
                 await imgAntiShielding(path)
-                imgtype = path.split('.')[-1]
-                imgname = path.split('\\')[-1].split('.')[-2]
+                (imgname, imgtype) = os.path.splitext(os.path.basename(path))
+                imgtype = imgtype[1:]
                 filename = f'{imgname}_anti.{imgtype}'
             img = R.img(f'setuweb/{filename}').cqcode
-        if config['forward']:
-            filename = i['url'].split('/')[-1]
-            msg += format_msg(i['url'], i['pid'], i['p'], i['title'], i['author'], i['ori_url']) + '\n'
-            msg += img + '\n'
-            data.append({
-                "type": "node",
-                "data": {
-                    "name": '小冰',
-                    "uin": '2854196306',
-                    "content": msg
-                }
-            })
+        # if config['forward']:
+		# filename = i['url'].split('/')[-1]
+		msg += format_msg(i['url'], i['pid'], i['p'], i['title'], i['author'], i['ori_url']) + '\n'
+		msg += img + '\n'
+		data.append({
+			"type": "node",
+			"data": {
+				"name": '小冰',
+				"uin": '2854196306',
+				"content": msg
+			}
+		})
 
     if config['forward']:
         result = await bot.send_group_forward_msg(group_id=args[0]['group_id'], messages=data)
@@ -640,8 +640,8 @@ async def send_to_group_acgmx(group_id: int, url: str, pid: str, p: str, title: 
         if config['antishielding']:
             path = R.img(f'setuweb/{filename}').path
             await imgAntiShielding(path)
-            imgtype = path.split('.')[-1]
-            imgname = path.split('\\')[-1].split('.')[-2]
+            (imgname, imgtype) = os.path.splitext(os.path.basename(path))
+            imgtype = imgtype[1:]
             filename = f'{imgname}_anti.{imgtype}'
         img = R.img(f'setuweb/{filename}').cqcode
         if config['forward']:
@@ -685,8 +685,8 @@ async def send_to_private(user_id: int, url: str, pid: str, p: str, title: str, 
     if config['antishielding']:
         path = R.img(f'setuweb/{filename}').path
         await imgAntiShielding(path)
-        imgtype = path.split('.')[-1]
-        imgname = path.split('\\')[-1].split('.')[-2]
+        (imgname, imgtype) = os.path.splitext(os.path.basename(path))
+        imgtype = imgtype[1:]
         filename = f'{imgname}_anti.{imgtype}'
     img = R.img(f'setuweb/{filename}').cqcode
     await bot.send_private_msg(user_id=user_id, message=img)
@@ -702,8 +702,8 @@ async def send_to_private_acgmx(user_id: int, url: str, pid: str, p: str, title:
     if config['antishielding']:
         path = R.img(f'setuweb/{filename}').path
         await imgAntiShielding(path)
-        imgtype = path.split('.')[-1]
-        imgname = path.split('\\')[-1].split('.')[-2]
+        (imgname, imgtype) = os.path.splitext(os.path.basename(path))
+        imgtype = imgtype[1:]
         filename = f'{imgname}_anti.{imgtype}'
     img = R.img(f'setuweb/{filename}').cqcode
     await bot.send_private_msg(user_id=user_id, message=img)
@@ -711,9 +711,10 @@ async def send_to_private_acgmx(user_id: int, url: str, pid: str, p: str, title:
 
 async def imgAntiShielding(path):
     image = Image.open(path)
-    imgtype = path.split('.')[-1]
-    imgname = path.split('\\')[-1].split('.')[-2]
-    path_anti = os.path.dirname(path) + f'\\{imgname}_anti.{imgtype}'
+    (imgname, imgtype) = os.path.splitext(os.path.basename(path))
+    imgtype = imgtype[1:]
+    path_anti = os.path.join(os.path.dirname(path), f'{imgname}_anti.{imgtype}')
+    print(f'save to {path_anti}')
     w, h = image.size
     pixels = [
         [0, 0],
@@ -745,3 +746,4 @@ async def imgAntiShielding(path):
 def get_groups():
     groups = bot.get_group_list()
     return groups
+
