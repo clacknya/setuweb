@@ -577,17 +577,17 @@ async def send_list_to_group(*args):
                 filename = f'{imgname}_anti.{imgtype}'
             img = R.img(f'setuweb/{filename}').cqcode
         # if config['forward']:
-		# filename = i['url'].split('/')[-1]
-		msg += format_msg(i['url'], i['pid'], i['p'], i['title'], i['author'], i['ori_url']) + '\n'
-		msg += img + '\n'
-		data.append({
-			"type": "node",
-			"data": {
-				"name": '小冰',
-				"uin": '2854196306',
-				"content": msg
-			}
-		})
+        # filename = i['url'].split('/')[-1]
+        msg += format_msg(i['url'], i['pid'], i['p'], i['title'], i['author'], i['ori_url']) + '\n'
+        msg += img + '\n'
+        data.append({
+            "type": "node",
+            "data": {
+                "name": '小冰',
+                "uin": '2854196306',
+                "content": msg
+            }
+        })
 
     if config['forward']:
         result = await bot.send_group_forward_msg(group_id=args[0]['group_id'], messages=data)
