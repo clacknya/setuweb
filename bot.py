@@ -45,10 +45,6 @@ else:
     group_psw = json.load(open(psw_path, 'r'))
 
 sv = Service('setuweb')
-try:
-    ip = json.loads(requests.get('https://jsonip.com/').text)['ip']
-except requests.exceptions.ConnectionError:
-    ip = 'ip获取失败'
 
 bot = get_bot()
 port = bot.config.PORT
@@ -57,6 +53,10 @@ config = json.load(open(f'{curr_dir}/config.json', 'r'))
 if config['url'] != '':
     setu_url = config['url']
 else:
+    try:
+        ip = requests.get('https://jsonip.com/').json()['ip']
+    except requests.exceptions.ConnectionError:
+        ip = 'ip获取失败'
     if port == 80:
         setu_url = f'http://{ip}/setu/'
     else:
@@ -349,8 +349,7 @@ async def group_setu(bot: HoshinoBot, ev: CQEvent):
             datas['tag'] = tags
         async with aiohttp.ClientSession() as session:
             async with session.post('https://api.lolicon.app/setu/v2', data=json.dumps(datas), headers=headers) as rq:
-                result = await rq.read()
-                result = json.loads(result)
+                result = await rq.json()
         err = result['error']
         if err != '':
             await bot.send(ev, err)
@@ -411,8 +410,7 @@ async def group_setu(bot: HoshinoBot, ev: CQEvent):
         url = 'https://api.acgmx.com/public/setu'
         async with aiohttp.ClientSession(headers=headers) as session:
             async with session.get(url) as res:
-                res = await res.read()
-                res = json.loads(res)
+                res = await res.json()
         img_url = res['data']['large']
         pid = res['data']['illust']
         restrict = res['data']['restrict']
