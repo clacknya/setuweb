@@ -326,7 +326,7 @@ async def group_setu(bot: HoshinoBot, ev: CQEvent):
         #             'num': num,
         #             'size': size,
         #         }
-        #     async with aiohttp.ClientSession() as session:
+        #     async with aiohttp.ClientSession(raise_for_status=True) as session:
         #         async with session.get('https://api.lolicon.app/setu/', params=params) as rq:
         #             result = await rq.read()
         #             result = json.loads(result)
@@ -347,7 +347,7 @@ async def group_setu(bot: HoshinoBot, ev: CQEvent):
             datas['uid'] = uids
         if tags is not None:
             datas['tag'] = tags
-        async with aiohttp.ClientSession() as session:
+        async with aiohttp.ClientSession(raise_for_status=True) as session:
             async with session.post('https://api.lolicon.app/setu/v2', data=json.dumps(datas), headers=headers) as rq:
                 result = await rq.json()
         err = result['error']
@@ -408,7 +408,7 @@ async def group_setu(bot: HoshinoBot, ev: CQEvent):
             'referer': 'https://www.acgmx.com/'
         }
         url = 'https://api.acgmx.com/public/setu'
-        async with aiohttp.ClientSession(headers=headers) as session:
+        async with aiohttp.ClientSession(headers=headers, raise_for_status=True) as session:
             async with session.get(url) as res:
                 res = await res.json()
         img_url = res['data']['large']
@@ -429,7 +429,7 @@ async def down_img(url: str):
     filename = url.split('/')[-1]
     path = R.img('setuweb/').path
     try:
-        async with aiohttp.ClientSession() as session:
+        async with aiohttp.ClientSession(raise_for_status=True) as session:
             res = await session.get(url)
             f = open(f'{path}/{filename}', 'wb')
             res = await res.read()
@@ -450,7 +450,7 @@ async def down_acgmx_img(url: str, token: str):
     filename = url.split('/')[-1]
     path = R.img('setuweb/').path
     try:
-        async with aiohttp.ClientSession(headers=headers) as session:
+        async with aiohttp.ClientSession(headers=headers, raise_for_status=True) as session:
             res = await session.get(url)
             f = open(f'{path}/{filename}', 'wb')
             res = await res.read()
